@@ -1,0 +1,205 @@
+﻿@model Entsiegeln.Areas.Identity.Data.EntsiegelnUser
+
+@{
+	ViewData["Title"] = "Profil";
+}
+<style>
+	@@media only screen and (max-width: 767px) {
+
+		table, thead, tbody, th, td, tr {
+			display: block;
+			overflow-wrap: break-word;
+		}
+
+		th {
+			display: none;
+		}
+
+		td {
+			position: relative;
+			padding-left: 50% !important;
+		}
+
+			td:before {
+				/* Now like a table header */
+				position: absolute;
+				/* Top/left values mimic padding */
+				top: 6px;
+				left: 6px;
+				width: 45%;
+				padding-right: 10px;
+				white-space: nowrap;
+			}
+
+			td:nth-of-type(1):before {
+				content: "Hinzugefügt am";
+			}
+
+			td:nth-of-type(2):before {
+				content: "Maßnahme";
+			}
+
+			td:nth-of-type(3):before {
+				content: "Straße";
+			}
+
+			td:nth-of-type(4):before {
+				content: "Ortsangabe";
+			}
+
+			td:nth-of-type(5):before {
+				content: "Löschen";
+			}
+	}
+
+	td > a {
+		color: unset;
+	}
+
+	input {
+		display: block;
+		width: 100%;
+	}
+</style>
+<div class="container">
+	<h1>Mein Profil</h1>
+	<p>
+		<hr />
+	</p>
+	<div>
+		<h5>Persönliche Daten <a data-toggle="modal" href="#personalModal" style="font-size:1rem; color:blue"><i class="far fa-edit"></i></a></h5>
+		<dl class="row">
+			<dt class="col-md-2">
+				@Html.DisplayNameFor(model => model.UserName)
+			</dt>
+			<dd class="col-md-10">
+				@Html.DisplayFor(model => model.UserName)
+			</dd>
+			<dt class="col-md-2">
+				@Html.DisplayNameFor(model => model.Email)
+			</dt>
+			<dd class="col-md-10">
+				@Html.DisplayFor(model => model.Email)
+			</dd>
+			<dt class="col-md-2">
+				@Html.DisplayNameFor(model => model.FirstName)
+			</dt>
+			<dd class="col-md-10">
+				@Html.DisplayFor(model => model.FirstName)
+			</dd>
+		</dl>
+	</div>
+
+	<div>
+		<h5>Eigene Vorschläge</h5>
+		@if (Model.Projects.Count > 0)
+		{
+			<table class="table table-sm table-striped">
+				<thead>
+					<tr>
+						<th>
+							@Html.DisplayNameFor(model => model.Projects[0].Datum)
+						</th>
+						<th>
+							@Html.DisplayNameFor(model => model.Projects[0].Massnahme)
+						</th>
+						<th>
+							@Html.DisplayNameFor(model => model.Projects[0].Strasse)
+						</th>
+						<th>
+							@Html.DisplayNameFor(model => model.Projects[0].Bezeichnung)
+						</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var item in Model.Projects)
+					{
+						<tr>
+							<td>
+								@Html.DisplayFor(model => item.Datum)<span>&nbsp;</span>
+							</td>
+							<td>
+								@Html.DisplayFor(model => item.Massnahme)<span>&nbsp;</span>
+							</td>
+							<td>
+								@Html.DisplayFor(model => item.Strasse), @Html.DisplayFor(model => item.Plz) Berlin<span>&nbsp;</span>
+							</td>
+							<td>
+								@Html.DisplayFor(model => item.Bezeichnung)<span>&nbsp;</span>
+							</td>
+							<td>
+								<a asp-controller="Projects" asp-action="DeleteMyProject" asp-route-id="@item.Id" onclick="return confirm('Soll dieser Vorschlag gelöscht werden?')"><i class="fas fa-trash"></i></a>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		}
+		else
+		{
+			<p>Bisher keine Vorschläge eingereicht.</p>
+		}
+	</div>
+	<p>
+		<hr />
+	</p>
+	<div>
+		<h5>Meine Favoriten</h5>
+		@if (Model.Ratings.Count > 0)
+		{
+			<table class="table table-sm table-striped">
+				<thead>
+					<tr>
+						<th>
+							@Html.DisplayNameFor(model => model.Ratings[0].Project.Datum)
+						</th>
+						<th>
+							@Html.DisplayNameFor(model => model.Ratings[0].Project.Massnahme)
+						</th>
+						<th>
+							@Html.DisplayNameFor(model => model.Ratings[0].Project.Strasse)
+						</th>
+						<th>
+							@Html.DisplayNameFor(model => model.Ratings[0].Project.Bezeichnung)
+						</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var item in Model.Ratings)
+					{
+						@if (item.Favorite == true)
+						{
+							<tr>
+								<td>
+									@Html.DisplayFor(model => item.Project.Datum)<span>&nbsp;</span>
+								</td>
+								<td>
+									@Html.DisplayFor(model => item.Project.Massnahme)<span>&nbsp;</span>
+								</td>
+								<td>
+									@Html.DisplayFor(model => item.Project.Strasse), @Html.DisplayFor(model => item.Project.Plz) Berlin<span>&nbsp;</span>
+								</td>
+								<td>
+									@Html.DisplayFor(model => item.Project.Bezeichnung)<span>&nbsp;</span>
+								</td>
+								<td>
+									<a asp-controller="Ratings" asp-action="UnjoinFavorite" asp-route-id="@item.Id"><i class="fas fa-trash"></i></a>
+								</td>
+							</tr>
+						}
+					}
+				</tbody>
+			</table>
+		}
+		else
+		{
+			<p>Bisher keine Favoriten gewählt.</p>
+		}
+	</div>
+</div>
+
+@section Scripts {
+	@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

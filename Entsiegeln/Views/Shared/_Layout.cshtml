@@ -1,0 +1,176 @@
+﻿@using Microsoft.AspNetCore.Identity;
+@using System.Security.Claims;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="shortcut icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.ico">
+	<link rel="shortcut icon" type="image/png" sizes="16x16" href="/favicons/favicon-24x24.ico">
+	<link rel="shortcut icon" type="image/png" sizes="16x16" href="/favicons/favicon-32x32.ico">
+	<link rel="shortcut icon" type="image/png" sizes="16x16" href="/favicons/favicon-64x64.ico">
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+	<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Roboto+Slab&display=swap" rel="stylesheet">
+	<script src="https://kit.fontawesome.com/b30ff64485.js" crossorigin="anonymous"></script>
+	<title>Berlin-Entsiegeln @ViewData["Title"]</title>
+	<script src="~/lib/jquery/dist/jquery.min.js"></script>
+	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="~/css/site.css" />
+	<script>
+		function decodeHtml(text) {
+			return $('<div>').html(text).text();
+		}
+	@if (User.Identity.IsAuthenticated)
+	{
+		<text>
+		sessionStorage.setItem('Username', decodeHtml('@User.Identity.Name'));
+		sessionStorage.setItem('Id', '@User.FindFirstValue(ClaimTypes.NameIdentifier)');
+		</text>
+	}else
+	{
+		<text>
+		sessionStorage.clear();
+		</text>
+
+	}
+		window.onload = function () {
+			if (sessionStorage.bezirk) {
+				$("#projectsLink").attr("href", $("#projectsLink").attr("href") + "?bezirk=" + sessionStorage.bezirk);
+			}
+		}
+	</script>
+	<style>
+		html {
+			position: relative;
+			min-height: 100%;
+			width: 100%;
+		}
+
+		body {
+			margin-bottom: 61px;
+			padding-top: 57px;
+			width: 100%;
+			height: 100%;
+			font-family: 'Open Sans', sans-serif;
+			background-image: url(/home-bg.jpg);
+			background-attachment: fixed;
+			background-size: cover;
+			background-position: center center;
+		}
+
+		.RenderBody {
+			margin-bottom: 61px;
+			/*			padding-top:57px;
+		*/ width: 100%;
+			height: 100%;
+		}
+
+		.navbar {
+			background-color: #2a6e99;
+			height: 57px;
+		}
+
+		.nav-item {
+			padding-left: 10px;
+			padding-right: 7px;
+			font-size: 1.3rem;
+		}
+
+		.footer {
+			background-color: #2c2b20;
+			position: absolute;
+			bottom: 1px;
+			width: 100%;
+			height: 61px;
+			line-height: 61px;
+		}
+
+		#bookmarkme {
+			text-decoration-line: underline;
+			font-weight: bold;
+			color: limegreen;
+		}
+
+		.navbar-nav {
+			flex-direction: row;
+			background: #b5e2ff;
+		}
+
+		@@media only screen and (max-width: 1000px) {
+			#bookmarkme {
+				text-decoration-line: underline;
+				font-weight: bold;
+				color: limegreen;
+				font-size: 1.1rem;
+			}
+		}
+	</style>
+</head>
+<body>
+	<header>
+		<nav class="navbar fixed-top navbar-expand-md navbar-toggleable-md navbar-light border-bottom box-shadow">
+			<div class="container">
+				<a id="bookmarkme" href="http://www.Berlin-Entsiegeln.de" class="navbar-brand" title="Lesezeichen">Berlin-Entsiegeln.de</a>
+				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+						aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+					<ul class="navbar-nav flex-grow-1">
+						<li class="nav-item">
+							<a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index"><i class="fas fa-map"></i></a>
+						</li>
+						@if (User.Identity.IsAuthenticated)
+						{
+							@if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+							{
+								<li class="nav-item">
+									<a id="projectsLink" class="nav-link text-dark" asp-area="" asp-controller="Projects" asp-action="Index" asp-route-bezirk="" title="Vorschläge"><i class="fas fa-table"></i></a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link text-dark" asp-area="" asp-controller="Preferences" asp-action="Index" title="Einstellungen"><i class="fas fa-cog"></i></a>
+								</li>
+							}
+							@if (User.IsInRole("Admin"))
+							{
+								<li class="nav-item">
+									<a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="Index" title="Benutzer"><i class="fas fa-users"></i></a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link text-dark" asp-area="" asp-controller="Error" asp-action="Index" title="Bugfinder"><i class="fas fa-bug"></i></a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link text-dark" asp-area="" asp-controller="Bilder" asp-action="Index" title="Fotos"><i class="fas fa-images"></i></a>
+								</li>
+							}
+						}
+						<li class="nav-item">
+							<a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Help" title="HowTo"><i class="fas fa-info-circle"></i></a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Contact" title="Kontakt"><i class="fas fa-envelope"></i></a>
+						</li>
+						<partial name="_LoginPartial" />
+					</ul>
+
+				</div>
+			</div>
+		</nav>
+	</header>
+	<div class="RenderBody">
+		@RenderBody()
+	</div>
+
+	<footer class="border-top footer text-muted">
+		<div class="container">
+			&copy; 2021 - Berlin-Entsiegeln - <a asp-area="" asp-controller="Home" asp-action="Privacy">Datenschutz</a> - <a asp-controller="Home" asp-action="Impressum">Impressum</a>
+		</div>
+	</footer>
+	<script src="~/lib/jquery/dist/jquery.min.js"></script>
+	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="~/js/site.js" asp-append-version="true"></script>
+	@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

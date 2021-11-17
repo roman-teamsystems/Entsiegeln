@@ -1,0 +1,128 @@
+﻿@model Entsiegeln.Models.Project
+
+@{
+	ViewData["Title"] = "Create";
+}
+<div class="container" style="padding-bottom:61px">
+	<h1>Create</h1>
+
+	<h4>Project</h4>
+	<hr />
+	<div class="row">
+		<div class="col-md-4">
+			<form asp-action="Create">
+				<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+				<div class="form-group">
+					<label asp-for="Bezeichnung" class="control-label"></label>
+					<input asp-for="Bezeichnung" class="form-control" />
+					<span asp-validation-for="Bezeichnung" class="text-danger"></span>
+				</div>
+				<div class="form-group">
+					<label asp-for="Datum" class="control-label"></label>
+					<input asp-for="Datum" class="form-control" />
+					<span asp-validation-for="Datum" class="text-danger"></span>
+				</div>
+				<div class="form-group">
+					<label asp-for="WKTKoordinaten" class="control-label"></label>
+					<input asp-for="WKTKoordinaten" class="form-control" />
+					<span asp-validation-for="WKTKoordinaten" class="text-danger"></span>
+				</div>
+				<div class="form-group">
+					<label asp-for="Strasse" class="control-label"></label>
+					<input asp-for="Strasse" class="form-control" />
+					<span asp-validation-for="Strasse" class="text-danger"></span>
+				</div>
+				<div class="form-group">
+					<label asp-for="Plz" class="control-label"></label>
+					<input asp-for="Plz" class="form-control" />
+					<span asp-validation-for="Plz" class="text-danger"></span>
+				</div>
+				<div class="form-group">
+					<label asp-for="Details" class="control-label"></label>
+					<input asp-for="Details" class="form-control" />
+					<span asp-validation-for="Details" class="text-danger"></span>
+				</div>
+				<div class="form-group form-check">
+					<label class="form-check-label">
+						<input class="form-check-input" asp-for="BSV" /> @Html.DisplayNameFor(model => model.BSV)
+					</label>
+				</div>
+				<div class="form-group form-check">
+					<label class="form-check-label">
+						<input class="form-check-input" asp-for="Kub" /> @Html.DisplayNameFor(model => model.Kub)
+					</label>
+				</div>
+				<div class="form-group form-check">
+					<label class="form-check-label">
+						<input class="form-check-input" asp-for="Bpf" /> @Html.DisplayNameFor(model => model.Bpf)
+					</label>
+				</div>
+				<div class="form-group form-check">
+					<label class="form-check-label">
+						<input class="form-check-input" asp-for="PzuB" /> @Html.DisplayNameFor(model => model.PzuB)
+					</label>
+				</div>
+				<div class="form-group form-check">
+					<label class="form-check-label">
+						<input class="form-check-input" asp-for="PentsV" /> @Html.DisplayNameFor(model => model.PentsV)
+					</label>
+				</div>
+				<div class="form-group form-check">
+					<label class="form-check-label">
+						<input class="form-check-input" asp-for="VzuG" /> @Html.DisplayNameFor(model => model.VzuG)
+					</label>
+				</div>
+				<div class="form-group form-check">
+					<label class="form-check-label">
+						<input class="form-check-input" asp-for="Div" /> @Html.DisplayNameFor(model => model.Div)
+					</label>
+				</div>
+				<div class="form-group form-check">
+					<label class="form-check-label">
+						<input class="form-check-input" asp-for="Vbeet" /> @Html.DisplayNameFor(model => model.Vbeet)
+					</label>
+				</div>
+				<div class="form-group form-check">
+					<label class="form-check-label">
+						<input class="form-check-input" asp-for="PP" /> @Html.DisplayNameFor(model => model.PP)
+					</label>
+				</div>
+				<div class="form-group form-check">
+					<label class="form-check-label">
+						<input class="form-check-input" asp-for="UG" /> @Html.DisplayNameFor(model => model.UG)
+					</label>
+				</div>
+				<div class="form-group form-check">
+					<label class="form-check-label">
+						<input class="form-check-input" asp-for="AzuX" /> @Html.DisplayNameFor(model => model.AzuX)
+					</label>
+				</div>
+				<div class="form-group form-check">
+					<label class="form-check-label">
+						<input class="form-check-input" asp-for="GwPI" /> @Html.DisplayNameFor(model => model.GwPI)
+					</label>
+				</div>
+				<div class="form-group form-check">
+					<label class="form-check-label">
+						<input class="form-check-input" asp-for="RuF" /> @Html.DisplayNameFor(model => model.RuF)
+					</label>
+				</div>
+				<div class="form-group">
+					<label asp-for="Status" class="control-label"></label>
+					<input asp-for="Status" value="0" class="form-control" />
+					<span asp-validation-for="Status" class="text-danger"></span>
+				</div>
+				<div class="form-group">
+					<input type="submit" value="Create" class="btn btn-primary" />
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<div>
+		<a asp-action="Index">Back to List</a>
+	</div>
+</div>
+@section Scripts {
+	@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

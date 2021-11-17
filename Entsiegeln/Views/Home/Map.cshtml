@@ -1,0 +1,751 @@
+﻿@{
+	ViewData["Title"] = "Karte";
+}
+<style>
+	.footer {
+		display: none;
+	}
+	/* CSS styles used by custom infobox template */
+	.customInfobox {
+		background-color: rgba(174,255,174,0.5);
+		box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.5);
+		color: #4e4949;
+		width: 200px;
+		padding: 10px;
+		font-size: 1rem;
+		pointer-events: auto !important;
+	}
+
+		.customInfobox .title {
+			font-size: 1.125rem;
+			font-weight: bold;
+			margin-bottom: 5px;
+		}
+
+	#myMap {
+		height: 100%;
+		width: 100%;
+		position: fixed !important;
+	}
+
+	body {
+		overflow: hidden;
+	}
+
+	input, label {
+		display: block;
+		margin: unset;
+		width: 100%;
+	}
+
+	@@media(max-width: 500px) {
+		div#searchBoxContainer {
+			position: absolute;
+			left: 10px;
+			top: 68px;
+			z-index: 1000;
+		}
+	}
+
+	@@media(min-width:501px) and (max-width: 767px) {
+		div#searchBoxContainer {
+			position: absolute;
+			left: 105px;
+			top: 68px;
+			z-index: 1000;
+		}
+	}
+
+	@@media(min-width: 768px) {
+		div#searchBoxContainer {
+			position: absolute;
+			left: 105px;
+			top: 68px;
+			z-index: 1000;
+		}
+
+		div#userInfo {
+			display: none;
+			pointer-events: none;
+			position: absolute;
+			margin-left: auto;
+			margin-right: auto;
+			left: 0;
+			right: 0;
+			text-align: center;
+			top: 68px;
+			z-index: 10;
+		}
+
+			div#userInfo > span {
+				background-color: springgreen;
+			}
+	}
+</style>
+<script>
+	sessionStorage.bezirk = "@ViewData["Bezirk"]";
+	console.log("@ViewData["Bezirk"]");
+</script>
+<script type='text/javascript' src="~/js/bingmaps.js" asp-append-version="true"></script>
+<div id="myMap"></div>
+<div style="position: absolute; left:10px; top:107px; z-index:20">
+	<input type="button" id="SaveButton" value="Speichern" onclick="SaveGeometry()" class="btn-warning" />
+</div>
+<div style="position: absolute; left:10px; top:147px; z-index:20">
+	<button id="CancelButton" onclick="CancelDrawing()" class="btn-dark">Abbrechen</button>
+</div>
+<div id='searchBoxContainer'>
+	<input type='text' id='searchBox' placeholder="Suche" />
+</div>
+<div id='userInfo'>
+	<span class="badge">
+		Hallo <span id="userInfo_userName"></span>! Dir verbleiben <span id="userInfo_leftFavorites"></span> von <span id="userInfo_maxFavorites"></span>
+		<img src="~/leaf.svg" style="width:16px; vertical-align:sub" />
+	</span>
+</div>
+<script type='text/javascript' src='https://www.bing.com/api/maps/mapcontrol?callback=GetMap' async defer></script>
+<div class="container py-2">
+	<div class="row">
+		<div class="col">
+			<div class="modal fade" id="SpeichernDialog" tabindex="-1" role="dialog" aria-labelledby="SpeichernDialog" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h6 class="modal-title" id="exampleModalLongTitle">Gib hier bitte Daten zu Deinem Vorschlag an:</h6>
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<div class="modal-body">
+							<label for="Massnahme" style="width:100px">Maßnahme</label>
+							<select id="Massnahme">
+								<option value="0" disabled selected> -- Maßnahme wählen -- </option>
+								<option value="1">Bäume pflanzen</option>
+								<option value="2">Baumscheibenvergrößerung</option>
+								<option value="3">Versickerungsbeet</option>
+								<option value="4">Bauliche Entsiegelung</option>
+								<option value="5">Grünflächen schaffen</option>
+							</select>
+							<hr />
+							<label for="Beitragender">Beitragender</label>
+							<input id="Beitragender" type="text" />
+							<hr />
+							<span id="ModalMessage" style="display:none; color:red">Adresse konnte nicht ermittelt werden.</span>
+							<label for="Strasse">Strasse</label>
+							<input id="Strasse" type="text" />
+							<label for="Plz">Plz</label>
+							<input id="Plz" type="text" />
+							<label for="Bezeichnung">Bitte den genauen Ort beschreiben:</label>
+							<input id="Bezeichnung" type="text" />
+						</div>
+						<div class="modal-footer">
+							<button id="cancel" type="button" value="cancel" class="btn btn-secondary">Abbrechen</button>
+							<button id="save" type="button" value="save" class="btn btn-primary">Speichern</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<style>
+	::-webkit-scrollbar {
+		width: 8px;
+	}
+
+	::-webkit-scrollbar-thumb {
+		background-color: #f0f8ffe6;
+		box-shadow: inset 0 0 6px rgba(0,0,0,.5);
+	}
+
+	::-webkit-scrollbar-track {
+		background-color: #f0f8ffe6;
+		box-shadow: inset 0 0 6px rgba(0,0,0,.4);
+	}
+
+	.ltrwrapper {
+		direction: ltr;
+	}
+
+	.details-dialog {
+		direction: rtl;
+		max-width: 575px;
+		width: 90%;
+		min-height: calc(100vh - 57px);
+		position: absolute;
+		top: 0px;
+		left: 0px;
+		background: #A8F4E4E6;
+		background: -webkit-linear-gradient(top, #7ecff5e8, #36ff4fab);
+		background: -moz-linear-gradient(top, #7ecff5e8, #36ff4fab);
+		background: linear-gradient(to bottom, #7ecff5e8, #36ff4fab);
+		color: #12571b;
+		box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.5);
+		padding: 20px;
+		visibility: hidden;
+		margin-top: 57px;
+	}
+
+	@@media only screen and (max-width: 600px) {
+		.details-dialog {
+			width: 100%;
+		}
+	}
+
+	.details-dialog .title {
+		font-family: 'Permanent Marker', cursive;
+		font-size: 2.5rem;
+		text-align: center;
+	}
+
+	.details-dialog .street {
+		font-family: 'Roboto Slab', serif;
+		font-weight: normal;
+		font-size: 1.5rem;
+		text-align: center;
+	}
+
+	.details-dialog .ort {
+		font-family: 'Roboto Slab', serif;
+		font-weight: normal;
+		font-size: 1.25rem;
+		text-align: center;
+	}
+
+	.details-dialog .subtitle {
+		font-family: "Open Sans";
+		font-weight: normal;
+		font-size: 1.125rem;
+		text-align: left;
+	}
+
+	.details-dialog .contributor {
+		font-size: 0.625rem;
+	}
+
+	.custom-switch label {
+	}
+
+	.closeDiv {
+		position: absolute;
+		right: 0;
+		top: 0;
+		padding: 3px;
+	}
+
+	.deleteDiv {
+		position: absolute;
+		right: 146px;
+		top: 0;
+		padding: 3px;
+	}
+
+	.editDiv {
+		position: absolute;
+		right: 39px;
+		top: 0;
+		padding: 3px;
+	}
+
+	.acceptDiv {
+		position: absolute;
+		right: 39px;
+		top: 0;
+		padding: 3px;
+	}
+
+	.logo {
+		position: absolute;
+		left: 25px;
+		top: 78px;
+		padding: 3px;
+	}
+
+	.carousel-item:before {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		content: "";
+	}
+
+	.carousel-inner {
+	}
+
+	.carousel-item > img {
+		max-height: 300px;
+		min-height: 300px;
+		object-fit: contain;
+		padding: 4px;
+	}
+
+	.errorMessage {
+		display: none;
+		position: fixed;
+		left: 0px;
+		top: 57px;
+		max-width: 575px;
+		font-size: 1.5rem;
+		font-weight: 700;
+		z-index: 10;
+	}
+
+	button.voteButton:hover {
+		background-color: unset;
+	}
+
+	button.voteButton.setVoted {
+		background-color: unset;
+		border-color: #ffc107;
+		box-shadow: rgba(255,193,7,0.5) 0 0 0 0.2rem inset;
+	}
+
+	span.Favoriten {
+		vertical-align: sub;
+	}
+
+	@@media(max-width: 767px) {
+		.column1 {
+			width: 85px;
+		}
+
+		.column2 {
+			width: 150px;
+		}
+
+		.column3 {
+			width: 100%;
+			margin-left: auto;
+			text-align-last: end;
+		}
+	}
+
+	@@media(min-width: 768px) {
+		.column1 {
+			width: 85px;
+		}
+
+		.column2 {
+			width: 150px;
+		}
+
+		.column3 {
+			width: 33%;
+			margin-left: auto;
+			text-align-last: end;
+		}
+	}
+
+	#switches {
+		display: none !important;
+	}
+</style>
+@if (User.Identity.IsAuthenticated)
+{
+	@if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+	{
+		<text>
+			<style>
+				#switches {
+					display: unset !important;
+				}
+			</style>
+		</text>
+	}
+}
+<div id="details-dialog" class="details-dialog d-flex flex-column pre-scrollable" style="z-index:100000">
+	<div class="ltrwrapper">
+		<div class="contributor" style="display:flex">
+			<span>Beitragender:&nbsp;</span><span id="details-dialog-contributor"></span>
+			<div class="acceptDiv">
+				<button id="details-dialog-freischalten" class="btn btn-success btn-sm">Freischalten</button>
+			</div>
+			<div class="editDiv">
+				<button id="details-dialog-bearbeiten" class="btn btn-warning btn-sm">Bearbeiten</button>
+			</div>
+			<div class="deleteDiv">
+				<button id="details-dialog-loeschen" class="btn btn-danger btn-sm">Löschen</button>
+			</div>
+			<div class="closeDiv">
+				<button id="details-dialog-schliessen" class="btn btn-outline-dark btn-sm"><i class="fas fa-times"></i></button>
+			</div>
+		</div>
+		<p style="text-align:center">
+			<span id="details-dialog-title" class="title"></span><br />
+			<span id="details-dialog-street" class="street"></span><br />
+			<span id="details-dialog-ort" class="ort"></span>
+		</p>
+		<div class="d-flex flex-row" style="width:100%">
+			<div id="switches" class="d-flex flex-column">
+				<div class="custom-control custom-switch">
+					<input id="bsv" type="checkbox" class="custom-control-input">
+					<label class="custom-control-label" for="bsv">BSV</label>
+				</div>
+				<div class="custom-control custom-switch">
+					<input id="kub" type="checkbox" class="custom-control-input">
+					<label class="custom-control-label" for="kub">KuB</label>
+				</div>
+				<div class="custom-control custom-switch">
+					<input id="bpf" type="checkbox" class="custom-control-input">
+					<label class="custom-control-label" for="bpf">Bpf</label>
+				</div>
+				<div class="custom-control custom-switch">
+					<input id="pzub" type="checkbox" class="custom-control-input">
+					<label class="custom-control-label" for="pzub">PzuB</label>
+				</div>
+				<div class="custom-control custom-switch">
+					<input id="pentsv" type="checkbox" class="custom-control-input">
+					<label class="custom-control-label" for="pentsv">PentsV</label>
+				</div>
+				<div class="custom-control custom-switch">
+					<input id="vzug" type="checkbox" class="custom-control-input">
+					<label class="custom-control-label" for="vzug">VzuG</label>
+				</div>
+				<div class="custom-control custom-switch">
+					<input id="div" type="checkbox" class="custom-control-input">
+					<label class="custom-control-label" for="div">Div</label>
+				</div>
+				<div class="custom-control custom-switch">
+					<input id="vbeet" type="checkbox" class="custom-control-input">
+					<label class="custom-control-label" for="vbeet">Vbeet</label>
+				</div>
+				<div class="custom-control custom-switch">
+					<input id="pp" type="checkbox" class="custom-control-input">
+					<label class="custom-control-label" for="pp">PP</label>
+				</div>
+				<div class="custom-control custom-switch">
+					<input id="ug" type="checkbox" class="custom-control-input">
+					<label class="custom-control-label" for="ug">UG</label>
+				</div>
+				<div class="custom-control custom-switch">
+					<input id="azux" type="checkbox" class="custom-control-input">
+					<label class="custom-control-label" for="azux">AzuX</label>
+				</div>
+				<div class="custom-control custom-switch">
+					<input id="gwpi" type="checkbox" class="custom-control-input">
+					<label class="custom-control-label" for="gwpi">GwPI</label>
+				</div>
+				<div class="custom-control custom-switch">
+					<input id="ruf" type="checkbox" class="custom-control-input">
+					<label class="custom-control-label" for="ruf">RuF</label>
+				</div>
+				<button id="btnLegende" type="button" class="btn badge badge-pill badge-info">Legende</button>
+			</div>
+			<div style="width:100%;margin-left:30px">
+				<!-- margin-left:30px (für linke Checkboxen) -->
+				<h6>Infos zum Vorschlag:</h6>
+				<textarea id="details-dialog-details" style="width:100%;height:175px"></textarea>
+				<span id="details-dialog-message" class="errorMessage btn btn-block btn-danger">Änderungen gespeichert</span>
+				<div class="row" style="margin:unset">
+					<div class="column1">
+						<button type="button" id="likeButton" class="voteButton btn btn-outline-light btn-sm">
+							<img src="~/thumb-up.svg" style="width:20px" />
+						</button>
+						<button type="button" id="favoriteButton" class="voteButton btn btn-outline-light btn-sm">
+							<img src="~/leaf.svg" style="width:20px" />
+						</button>
+					</div>
+					<div class="column2">
+						<span class="Favoriten">Dir verbleiben </span><span class="Favoriten" id="leftFavorites"></span><img src="~/leaf.svg" style="width:20px" />
+					</div>
+					<div class="column3">
+						<button type="button" id="details-dialog-speichern" class="btn btn-sm btn-warning">Speichern</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="carouselControls" class="carousel slide mb-3 mt-3" data-ride="carousel">
+			<div id="BilderCarousel" class="carousel-inner">
+			</div>
+			<a class="carousel-control-prev" href="#carouselControls" role="button" data-slide="prev">
+				<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+				<span class="sr-only">Previous</span>
+			</a>
+			<a class="carousel-control-next" href="#carouselControls" role="button" data-slide="next">
+				<span class="carousel-control-next-icon" aria-hidden="true"></span>
+				<span class="sr-only">Next</span>
+			</a>
+		</div>
+		<div style="position:relative; z-index:10">
+			<button id="details-dialog-delete-image" style="position:absolute; bottom:20px" class="btn-danger btn-sm" onclick="DeleteImageFromCarousel(); this.blur();">
+				<i class="fas fa-trash"></i>
+			</button>
+		</div>
+
+		<form id="fileUpload" action='~/File' enctype="multipart/form-data" onsubmit="FileUpload(this); return false;" method="post">
+			<div class="input-group mb-3">
+				<div class="input-group-prepend">
+					<button class="btn btn-primary" type="submit" id="customFileInputButton">Upload</button>
+				</div>
+				<div class="custom-file">
+					<input type="file" accept="image/jpeg" class="custom-file-input" id="customFileInput" name="file" aria-describedby="customFileInput">
+					<label id="fileLabel" class="custom-file-label" for="customFileInput">Bild wählen</label>
+				</div>
+			</div>
+			<div style="font-size:0.7rem; color:white; background-color:green; padding:5px; text-align:center" class="btn">
+				<p style="margin:0">Mit dem Hochladen versichere ich die Rechte der Nutzung am zur Verfügung gestellten Fotomaterial zu halten und stimme der öffentlichen Verwendung zu. Das Bild enthält keine Verstöße gegen das Persönlichkeitsrecht oder andere Urheber- oder Lizenzrechte.</p>
+			</div>
+		</form>
+	</div>
+</div>
+
+<style>
+	table {
+		font-size: 0.625rem;
+		font-weight: bold;
+	}
+</style>
+<div class="modal fade" id="modalLegende" tabindex="-1" role="dialog" style="z-index:100001">
+	<div class="modal-dialog modal-dialog-centered" style="max-width: 602px" role="document">
+		<div class="modal-content" style="overflow-x: auto">
+			<div class="badge-light" style="width:600px">
+				<table class="table table-sm">
+					<thead>
+						<tr>
+							<th scope="col">Maßnahmen</th>
+							<th scope="col">Kürzel</th>
+							<th scope="col" style="background:orange">Baum</th>
+							<th scope="col" style="background:red">Parkplatz</th>
+							<th scope="col" style="background:green">Grünanlage</th>
+							<th scope="col" style="background:lightblue">Sonstige</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>Baumscheiben vergrößern</td>
+							<td>BSV</td>
+							<td style="background:orange">x</td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>Mehr kleines KopfsteinPflaster unter Bäumen (statt Platten oder Verbundsteinen)</td>
+							<td>KuB</td>
+							<td style="background:orange">x</td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>Bäume entlang der Straße pflanzen (dafür Gehweg stellenweise entsiegeln)</td>
+							<td>Bpf</td>
+							<td style="background:orange">x</td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>Jeden x-ten Parkplatz durch Baum ersetzen</td>
+							<td>PzuB</td>
+							<td style="background:orange">x</td>
+							<td style="background:red">x</td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>Parkplätze entsiegeln (statt Asphalt, Verbundsteine o.ä.)</td>
+							<td>PentsV</td>
+							<td></td>
+							<td style="background:red">x</td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>versiegelte Flächen in Grünflächen (teil-)umwandeln</td>
+							<td>VzuG</td>
+							<td></td>
+							<td style="background:red">x</td>
+							<td style="background:green">x</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>Aufwertung von Rasenfläche, mehr Biodiversität</td>
+							<td>Div</td>
+							<td></td>
+							<td></td>
+							<td style="background:green">x</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>Versickerungsbeet</td>
+							<td>Vbeet</td>
+							<td></td>
+							<td></td>
+							<td style="background:green">x</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>Pocket-Park / Bürger-Garten</td>
+							<td>PP</td>
+							<td></td>
+							<td></td>
+							<td style="background:green">x</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>Urban Garden (Anwohner*innen-Initiative)</td>
+							<td>UG</td>
+							<td></td>
+							<td></td>
+							<td style="background:green">x</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>Asphalt ersetzen durch (Schotter, Kopfstein oder Doppel-T)</td>
+							<td>AzuX</td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td style="background:lightblue">x</td>
+						</tr>
+						<tr>
+							<td>Platten auf Gehweg auf 2 Meter Breite begrenzen; rechts und links davon Kopfsteinpflaster</td>
+							<td>GwPI</td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td style="background:lightblue">x</td>
+						</tr>
+						<tr>
+							<td>nur Rad- und Fußverkehr zulassen</td>
+							<td>RuF</td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td style="background:lightblue">x</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="svgBau" style="display:none"></div>
+<div id="svgVbeet" style="display:none"></div>
+<div id="svgBSV" style="display:none"></div>
+<div id="svgGruen" style="display:none"></div>
+<div id="svgBaum" style="display:none"></div>
+<div id="svgLeaf" style="display:none">
+	<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 504.125 504.125" style="enable-background:new 0 0 504.125 504.125;" xml:space="preserve"><path style="fill:#3A7F0D;" d="M339.772,0c0,0,44.536,108.954-146.337,182.138C89.719,221.893,10.059,323.789,105.173,481.193c7.877-70.357,41.653-225.485,186.888-260.884c0,0-135.176,50.546-147.117,279.347c69.459,9.752,232.361,16.305,280.726-125.062C489.536,187.817,339.772,0,339.772,0z" /><path style="fill:#49A010;" d="M145.007,498.704c147.456-58.849,254.748-196.71,269.556-361.283C384.418,56.107,339.772,0,339.772,0s44.536,108.954-146.337,182.138C89.719,221.893,10.059,323.789,105.173,481.193c7.877-70.357,41.653-225.485,186.888-260.884C292.053,220.31,157.279,270.73,145.007,498.704z" /><circle style="fill:#3A7F0D;" cx="90.459" cy="171.985" r="13.785" /><g><circle style="fill:#49A010;" cx="133.782" cy="158.2" r="9.846" /><circle style="fill:#49A010;" cx="124.921" cy="64.662" r="24.615" /><circle style="fill:#49A010;" cx="200.736" cy="120.785" r="7.877" /><circle style="fill:#49A010;" cx="266.713" cy="76.477" r="22.646" /></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
+</div>
+
+<style>
+
+	.mapFooter {
+		width: 100%;
+		position: fixed;
+		height: 80px;
+		bottom: 0;
+		background-color: rgba(0,0,0,0.5);
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+	}
+
+		.mapFooter .control-overlay {
+			width: 400px;
+			height: 50%;
+			display: flex;
+			flex-direction: row;
+			justify-content: space-around;
+		}
+
+			.mapFooter .control-overlay div {
+				background-color: unset;
+				border-width: thin;
+			}
+
+				.mapFooter .control-overlay div button:focus {
+					outline: none !important;
+					box-shadow: none !important;
+				}
+
+	.control-overlay div button:hover {
+		background-color: #a5a5a5;
+		outline: none !important;
+		box-shadow: none !important;
+	}
+
+	.control-overlay div button.active:hover {
+		background-color: #ffd507 !important;
+		outline: none !important;
+		box-shadow: none !important;
+	}
+
+	.control-overlay div button svg {
+		width: 28px;
+		height: 28px;
+	}
+
+	@@media only screen and (max-width: 600px) {
+	}
+
+	.attribution {
+		color: aliceblue;
+		position: fixed;
+		bottom: 0;
+		left: 60px;
+		font-size: 0.625rem;
+	}
+</style>
+
+@*((User.Identity.IsAuthenticated) && ((User.Identity as ClaimsIdentity).Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).Contains(Roles.Manager.ToString())
+	|| (User.Identity as ClaimsIdentity).Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).Contains(Roles.Admin.ToString())))*@
+@if ((User.Identity.IsAuthenticated) && (User.IsInRole("Admin") || User.IsInRole("Manager")))
+{
+	<div id="MapFilter" class="mapFooter">
+		<div class="btn-toolbar control-overlay" role="toolbar">
+			<div class="btn-group" role="group">
+				<button type="button" id="toggle-bpf" data-toggle="tooltip" title="Bäume pflanzen" class="btn btn-outline-warning active">
+				</button>
+				<button type="button" id="toggle-bsv" data-toggle="tooltip" title="Baumscheibenvergrößerung" class="btn btn-outline-warning active">
+				</button>
+				<button type="button" id="toggle-vbeet" data-toggle="tooltip" title="Versickerungsbeet" class="btn btn-outline-warning active">
+				</button>
+				<button type="button" id="toggle-bau" data-toggle="tooltip" title="Bauliche Entsiegelung" class="btn btn-outline-warning active">
+				</button>
+				<button type="button" id="toggle-gruen" data-toggle="tooltip" title="Grünflächen schaffen" class="btn btn-outline-warning active">
+				</button>
+			</div>
+			<div class="btn-group" role="group">
+				<button type="button" id="toggle-new" data-toggle="tooltip" title="Nur neue Vorschläge anzeigen" class="btn btn-outline-warning">
+					<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 291.728 291.728" style="enable-background:new 0 0 291.728 291.728"><g><path style="fill:#3db39e" d="M291.728 145.86l-39.489 28.52 19.949 44.439-48.469 4.896-4.896 48.479-44.439-19.959-28.52 39.489-28.52-39.489-44.439 19.959-4.896-48.479-48.469-4.896 19.949-44.439L0 145.86l39.489-28.511L19.53 72.909l48.479-4.896 4.905-48.479 44.43 19.959 28.52-39.489 28.52 39.489 44.439-19.959 4.887 48.479 48.479 4.896-19.949 44.43C252.24 117.34 291.728 145.86 291.728 145.86z" /><path style="fill:#fff" d="M108.035 127.615c-2.836.0-4.942 1.76-4.942 4.914v23.834h-.137L82.05 129.694c-.857-1.14-2.899-2.088-4.158-2.088-2.836.0-4.942 1.76-4.942 4.914v35.823c0 3.155 2.106 4.914 4.942 4.914 2.845.0 4.951-1.76 4.951-4.914v-23.514h.137l20.907 26.35c.921 1.14 2.89 2.088 4.149 2.088 2.845.0 4.951-1.76 4.951-4.914V132.53C112.986 129.384 110.88 127.615 108.035 127.615zM147.241 164.186h-12.209v-9.583h10.823c3.173.0 4.814-2.206 4.814-4.349.0-2.216-1.586-4.358-4.814-4.358h-10.823v-9.209h11.607c3.1.0 4.686-2.206 4.686-4.349.0-2.206-1.514-4.367-4.686-4.367h-16.357c-3.492.0-5.133 2.334-5.133 5.498v34.684c0 2.836 2.17 4.723 5.079 4.723h17.014c3.1.0 4.677-2.197 4.677-4.349C151.918 166.329 150.405 164.186 147.241 164.186zM214 127.615c-3.164.0-4.686 1.76-5.27 4.541l-5.607 26.797h-.137l-8.571-27.617c-.72-2.27-2.699-3.72-5.133-3.72s-4.422 1.45-5.142 3.72l-8.571 27.617h-.128l-5.607-26.797c-.593-2.781-2.106-4.541-5.279-4.541-2.89.0-4.677 2.143-4.677 4.167l.255 2.134 8.379 34.428c.656 2.644 2.836 4.914 6.528 4.914 3.228.0 5.735-2.024 6.528-4.604l7.65-24.335h.137l7.65 24.335c.793 2.58 3.301 4.604 6.528 4.604 3.693.0 5.881-2.27 6.537-4.914l8.37-34.428.264-2.134C218.678 129.758 216.9 127.615 214 127.615z" /></g><g /><g /><g /><g /><g /><g /><g /><g /><g /><g /><g /><g /><g /><g /><g /></svg>
+				</button>
+			</div>
+			<div class="btn-group" role="group">
+				<button type="button" id="toggle-favorites" data-toggle="tooltip" title="Favoriten anzeigen" class="btn btn-outline-warning">
+					<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 504.125 504.125" style="enable-background:new 0 0 504.125 504.125;" xml:space="preserve"><path style="fill:#3A7F0D;" d="M339.772,0c0,0,44.536,108.954-146.337,182.138C89.719,221.893,10.059,323.789,105.173,481.193c7.877-70.357,41.653-225.485,186.888-260.884c0,0-135.176,50.546-147.117,279.347c69.459,9.752,232.361,16.305,280.726-125.062C489.536,187.817,339.772,0,339.772,0z" /><path style="fill:#49A010;" d="M145.007,498.704c147.456-58.849,254.748-196.71,269.556-361.283C384.418,56.107,339.772,0,339.772,0s44.536,108.954-146.337,182.138C89.719,221.893,10.059,323.789,105.173,481.193c7.877-70.357,41.653-225.485,186.888-260.884C292.053,220.31,157.279,270.73,145.007,498.704z" /><circle style="fill:#3A7F0D;" cx="90.459" cy="171.985" r="13.785" /><g><circle style="fill:#49A010;" cx="133.782" cy="158.2" r="9.846" /><circle style="fill:#49A010;" cx="124.921" cy="64.662" r="24.615" /><circle style="fill:#49A010;" cx="200.736" cy="120.785" r="7.877" /><circle style="fill:#49A010;" cx="266.713" cy="76.477" r="22.646" /></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
+				</button>
+			</div>
+		</div>
+	</div>
+}
+else
+{
+	<div id="MapFilter" class="mapFooter">
+		<div class="btn-toolbar control-overlay" role="toolbar">
+			<div class="btn-group" role="group">
+				<button type="button" id="toggle-bpf" data-toggle="tooltip" title="Bäume pflanzen" class="btn btn-outline-warning active">
+				</button>
+				<button type="button" id="toggle-bsv" data-toggle="tooltip" title="Baumscheibenvergrößerung" class="btn btn-outline-warning active">
+				</button>
+				<button type="button" id="toggle-vbeet" data-toggle="tooltip" title="Versickerungsbeet" class="btn btn-outline-warning active">
+				</button>
+				<button type="button" id="toggle-bau" data-toggle="tooltip" title="Bauliche Entsiegelung" class="btn btn-outline-warning active">
+				</button>
+				<button type="button" id="toggle-gruen" data-toggle="tooltip" title="Grünflächen schaffen" class="btn btn-outline-warning active">
+				</button>
+			</div>
+			<div class="btn-group" role="group">
+				<button type="button" id="toggle-favorites" data-toggle="tooltip" title="Favoriten anzeigen" class="btn btn-outline-warning">
+					<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 504.125 504.125" style="enable-background:new 0 0 504.125 504.125;" xml:space="preserve"><path style="fill:#3A7F0D;" d="M339.772,0c0,0,44.536,108.954-146.337,182.138C89.719,221.893,10.059,323.789,105.173,481.193c7.877-70.357,41.653-225.485,186.888-260.884c0,0-135.176,50.546-147.117,279.347c69.459,9.752,232.361,16.305,280.726-125.062C489.536,187.817,339.772,0,339.772,0z" /><path style="fill:#49A010;" d="M145.007,498.704c147.456-58.849,254.748-196.71,269.556-361.283C384.418,56.107,339.772,0,339.772,0s44.536,108.954-146.337,182.138C89.719,221.893,10.059,323.789,105.173,481.193c7.877-70.357,41.653-225.485,186.888-260.884C292.053,220.31,157.279,270.73,145.007,498.704z" /><circle style="fill:#3A7F0D;" cx="90.459" cy="171.985" r="13.785" /><g><circle style="fill:#49A010;" cx="133.782" cy="158.2" r="9.846" /><circle style="fill:#49A010;" cx="124.921" cy="64.662" r="24.615" /><circle style="fill:#49A010;" cx="200.736" cy="120.785" r="7.877" /><circle style="fill:#49A010;" cx="266.713" cy="76.477" r="22.646" /></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
+				</button>
+			</div>
+		</div>
+	</div>
+}
+<div class="attribution">Icons made by <a href="" title="Good Ware">Good Ware</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>

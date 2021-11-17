@@ -1,0 +1,51 @@
+﻿@model Entsiegeln.Models.Preferences
+
+@{
+    ViewData["Title"] = "Create";
+}
+<div class="container">
+	<h1>Create</h1>
+
+	<h4>Preferences</h4>
+	<hr />
+	<div class="row">
+		<div class="col-md-4">
+			<form asp-action="Create">
+				<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+				<div class="form-group">
+					<label asp-for="Icon1" class="control-label"></label>
+					<input asp-for="Icon1" class="form-control" />
+					<span asp-validation-for="Icon1" class="text-danger"></span>
+				</div>
+				<div class="form-group">
+					<label asp-for="Icon2" class="control-label"></label>
+					<input asp-for="Icon2" class="form-control" />
+					<span asp-validation-for="Icon2" class="text-danger"></span>
+				</div>
+				<div class="form-group">
+					<label asp-for="Icon3" class="control-label"></label>
+					<input asp-for="Icon3" class="form-control" />
+					<span asp-validation-for="Icon3" class="text-danger"></span>
+				</div>
+				<div class="form-group">
+					<label asp-for="Icon4" class="control-label"></label>
+					<input asp-for="Icon4" class="form-control" />
+					<span asp-validation-for="Icon4" class="text-danger"></span>
+				</div>
+				<div class="form-group">
+					<label asp-for="Icon5" class="control-label"></label>
+					<input asp-for="Icon5" class="form-control" />
+					<span asp-validation-for="Icon5" class="text-danger"></span>
+				</div>
+				<div class="form-group">
+					<input type="submit" value="Create" class="btn btn-primary" />
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<div>
+		<a asp-action="Index">Back to List</a>
+	</div>
+
+</div>

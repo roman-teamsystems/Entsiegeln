@@ -1,0 +1,165 @@
+﻿@model IEnumerable<Entsiegeln.Models.Preferences>
+
+@{
+	ViewData["Title"] = "Index";
+}
+<style>
+</style>
+<script>
+	function onChange(e) {
+		console.log(e);
+		var name = e.target.files[0].name;
+		var nextSibling = e.target.nextElementSibling;
+		nextSibling.innerText = name;
+		return false;
+	}
+	function changeSvgSize() {
+		var svgList = document.querySelectorAll(".svgImage");
+		console.log(svgList);
+		for (var i = 0; i < svgList.length; i++) {
+			console.log(svgList[i].children[0]);
+			svgList[i].children[0].setAttribute("width", 50);
+			svgList[i].children[0].setAttribute("height", 50);
+		}
+	}
+	$(document).ready(function () {
+		changeSvgSize();
+	});
+</script>
+<div class="container">
+	<table class="table">
+		@foreach (var item in Model)
+		{
+
+			<tr>
+				<th>
+					@Html.DisplayNameFor(model => model.Icon1)
+				</th>
+				<td>
+					<div class="svgImage">
+						@Html.Raw(item.Icon1)
+					</div>
+				</td>
+				<td>
+					<form asp-controller="Preferences" asp-action="Upload" asp-route-id="@item.Id" asp-route-fileId="1" enctype="multipart/form-data" method="post">
+						<div class="input-group mb-3">
+							<div class="input-group-prepend">
+								<button class="btn btn-primary" type="submit">Upload</button>
+							</div>
+							<div class="custom-file">
+								<input type="file" accept="image/svg+xml" class="custom-file-input" onchange="onChange(event)" name="formFile">
+								<label class="custom-file-label">Choose file</label>
+							</div>
+						</div>
+					</form>
+				</td>
+			</tr>
+			<tr>
+				<th>
+					@Html.DisplayNameFor(model => model.Icon2)
+				</th>
+				<td>
+					<div class="svgImage">
+						@Html.Raw(item.Icon2)
+					</div>
+				</td>
+				<td>
+					<form asp-controller="Preferences" asp-action="Upload" asp-route-id="@item.Id" asp-route-fileId="2" enctype="multipart/form-data" method="post">
+						<div class="input-group mb-3">
+							<div class="input-group-prepend">
+								<button class="btn btn-primary" type="submit">Upload</button>
+							</div>
+							<div class="custom-file">
+								<input type="file" accept="image/svg+xml" class="custom-file-input" onchange="onChange(event)" name="formFile">
+								<label class="custom-file-label">Choose file</label>
+							</div>
+						</div>
+					</form>
+				</td>
+			</tr>
+			<tr>
+				<th>
+					@Html.DisplayNameFor(model => model.Icon3)
+				</th>
+				<td>
+					<div class="svgImage">
+						@Html.Raw(item.Icon3)
+					</div>
+				</td>
+				<td>
+					<form asp-controller="Preferences" asp-action="Upload" asp-route-id="@item.Id" asp-route-fileId="3" enctype="multipart/form-data" method="post">
+						<div class="input-group mb-3">
+							<div class="input-group-prepend">
+								<button class="btn btn-primary" type="submit">Upload</button>
+							</div>
+							<div class="custom-file">
+								<input type="file" accept="image/svg+xml" class="custom-file-input" onchange="onChange(event)" name="formFile">
+								<label class="custom-file-label">Choose file</label>
+							</div>
+						</div>
+					</form>
+
+				</td>
+			</tr>
+			<tr>
+				<th>
+					@Html.DisplayNameFor(model => model.Icon4)
+				</th>
+				<td>
+					<div class="svgImage">
+						@Html.Raw(item.Icon4)
+					</div>
+				</td>
+				<td>
+					<form asp-controller="Preferences" asp-action="Upload" asp-route-id="@item.Id" asp-route-fileId="4" enctype="multipart/form-data" method="post">
+						<div class="input-group mb-3">
+							<div class="input-group-prepend">
+								<button class="btn btn-primary" type="submit">Upload</button>
+							</div>
+							<div class="custom-file">
+								<input type="file" accept="image/svg+xml" class="custom-file-input" onchange="onChange(event)" name="formFile">
+								<label class="custom-file-label">Choose file</label>
+							</div>
+						</div>
+					</form>
+
+				</td>
+			</tr>
+			<tr>
+				<th>
+					@Html.DisplayNameFor(model => model.Icon5)
+				</th>
+				<td>
+					<div class="svgImage">
+						@Html.Raw(item.Icon5)
+					</div>
+				</td>
+				<td>
+					<form asp-controller="Preferences" asp-action="Upload" asp-route-id="@item.Id" asp-route-fileId="5" enctype="multipart/form-data" method="post">
+						<div class="input-group mb-3">
+							<div class="input-group-prepend">
+								<button class="btn btn-primary" type="submit">Upload</button>
+							</div>
+							<div class="custom-file">
+								<input type="file" accept="image/svg+xml" class="custom-file-input" onchange="onChange(event)" name="formFile">
+								<label class="custom-file-label">Choose file</label>
+							</div>
+						</div>
+					</form>
+
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+					<a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+				</td>
+				<td></td>
+				<td></td>
+			</tr>
+
+		}
+
+	</table>
+
+</div>

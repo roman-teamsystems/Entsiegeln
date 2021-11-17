@@ -1,0 +1,131 @@
+﻿@using Microsoft.AspNetCore.Identity;
+@using Entsiegeln.Areas.Identity.Data;
+@using System.Security.Claims;
+
+@model IEnumerable<Entsiegeln.Areas.Identity.Data.EntsiegelnUser>
+@inject UserManager<EntsiegelnUser> userManager
+
+@{
+	ViewData["Title"] = "Index";
+}
+<script>
+	async function setAdmin(userId, yesorno) {
+		try {
+			console.log("setAdmin: UserId: " + userId + " yesorno: " + yesorno);
+			var response;
+			if (yesorno) {
+				response = await fetch('Users/MakeAdmin?id=' + userId);
+			}
+			else {
+				response = await fetch('Users/RemoveAdmin?id=' + userId);
+			}
+
+			if (response.ok) {
+				console.log('The Admin rights of User ' + userId + ' have changed!');
+			}
+			else {
+				console.log("Couldn't find User " + userId);
+				if (yesorno) {
+					$('#' + userId + '-Admin').prop("checked", false);
+				}
+				else {
+					$('#' + userId + '-Admin').prop("checked", true);
+				}
+			}
+		}
+		catch {
+			console.log('Error when giving Admin rights to User ' + userId);
+		}
+	}
+	async function setManager(userId, yesorno) {
+		try {
+			console.log("setAdmin: UserId: " + userId + " yesorno: " + yesorno);
+			var response;
+			if (yesorno) {
+				response = await fetch('Users/MakeManager?id=' + userId);
+			}
+			else {
+				response = await fetch('Users/RemoveManager?id=' + userId);
+			}
+
+			if (response.ok) {
+				console.log('The Manager rights of User ' + userId + ' have changed!');
+			}
+			else {
+				console.log("Couldn't find User " + userId);
+				if (yesorno) {
+					$('#' + userId + '-Manager').prop("checked", false);
+				}
+				else {
+					$('#' + userId + '-Manager').prop("checked", true);
+				}
+			}
+		}
+		catch {
+			console.log('Error when giving Manager rights to User ' + userId);
+		}
+	}
+</script>
+<div class="container">
+	<h1>Benutzer</h1>
+
+	<table class="table">
+		<thead>
+			<tr>
+				<th>
+					@Html.DisplayNameFor(model => model.UserName)
+				</th>
+				<th>
+					@Html.DisplayNameFor(model => model.Email)
+				</th>
+				<th>
+					Name
+				</th>
+				<th>
+					Manager
+				</th>
+				<th>
+					Admin
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var item in Model)
+			{
+			<tr>
+				<td>
+					@Html.DisplayFor(modelItem => item.UserName)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.Email)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.FirstName) @Html.DisplayFor(modelItem => item.LastName)
+				</td>
+				<td>
+					@if (userManager.IsInRoleAsync(item, "Manager").Result == false)
+					{
+						<input id="@item.Id-Manager" type="checkbox" onclick="setManager('@item.Id', this.checked)"  />
+					}
+					else
+					{
+						<input id="@item.Id-Manager" type="checkbox" checked="checked" onclick="setManager('@item.Id', this.checked)" />
+					}
+				</td>
+				<td>
+					@if (userManager.IsInRoleAsync(item, "Admin").Result == false)
+					{
+						<input id="@item.Id-Admin" type="checkbox" onclick="setAdmin('@item.Id', this.checked)" />
+					}
+					else
+					{
+						<input id="@item.Id-Admin" type="checkbox" checked="checked" onclick="setAdmin('@item.Id', this.checked)" />
+					}
+				</td>
+			</tr>
+			}
+		</tbody>
+	</table>
+</div>
+
+@*(userManager.GetRolesAsync(userManager.Users.Where(u => u.Id == item.Id).FirstOrDefault()).Result[0]*@

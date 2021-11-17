@@ -1,0 +1,55 @@
+﻿@model IEnumerable<Entsiegeln.Models.Error>
+@using Berlin2bgreen.Controllers;
+
+@{
+	ViewData["Title"] = "Errors";
+}
+
+
+<div class="container">
+	<p><a asp-controller="Error" asp-action="DeleteErrors" >Liste löschen</a></p>
+	<table class="table table-sm">
+		<thead>
+			<tr>
+				<th>
+					@Html.DisplayNameFor(model => model.Id)
+				</th>
+				<th>
+					@Html.DisplayNameFor(model => model.Date)
+				</th>
+				<th>
+					@Html.DisplayNameFor(model => model.ErrorCode)
+				</th>
+				<th>
+					@Html.DisplayNameFor(model => model.Text)
+				</th>
+				<th>
+					@Html.DisplayNameFor(model => model.User)
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var item in Model)
+			{
+				<tr>
+					<td align="right">
+						@Html.DisplayFor(modelItem => item.Id)
+					</td>
+					<td>
+						@Html.DisplayFor(modelItem => item.Date)
+					</td>
+					<td>
+						@Html.DisplayFor(modelItem => item.ErrorCode)
+					</td>
+					<td>
+						@Html.DisplayFor(modelItem => item.Text)
+					</td>
+					<td>
+						@Html.DisplayFor(modelItem => item.User)
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+
+</div>

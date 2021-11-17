@@ -1,0 +1,9 @@
+﻿<div class="container">
+	<h3>Import Json Content to Project Table</h3>
+	<br />
+	<p>Paste Json into Textarea</p>
+	<form asp-controller="Projects" asp-action="ImportProjects" method="post">
+		<textarea id="jsonContent" name="jsonContent" style="width:1000px; height:500px"></textarea>
+		<button type="submit">Daten senden</button>
+	</form>
+</div>

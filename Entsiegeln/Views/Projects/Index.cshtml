@@ -1,0 +1,238 @@
+﻿@model IEnumerable<Entsiegeln.Models.Project>
+@using Entsiegeln.Controllers;
+
+@{
+	ViewData["Title"] = "Index";
+}
+<style>
+	table {
+		font-size: 0.625rem;
+	}
+
+	/*		td:nth-child(n+7):nth-child(n) {
+		width: 4em;
+	}*/
+
+	td:nth-child(1) {
+		width: 4em;
+	}
+
+	td:nth-child(2) {
+		width: 10em;
+	}
+
+	td:nth-child(3) {
+		width: 25em;
+	}
+
+	td:nth-child(4) {
+		width: 5em;
+	}
+
+	td:nth-child(5) {
+		width: 25em;
+	}
+
+	td:nth-child(6) {
+		width: 20em;
+	}
+
+	td:nth-child(8) {
+		width: 10em;
+	}
+
+	td:nth-child(9) {
+		width: 4em;
+	}
+</style>
+<script>
+	function onLoad() {
+        @if (ViewBag.NewProjects)
+		{
+            <text>document.getElementById("newProjects").checked = true;</text>
+		}
+	}
+	window.onload = function () {
+		$('#districtSelector').val(sessionStorage.bezirk).change();
+		$('#districtSelector').bind('change', function (e) {
+			sessionStorage.bezirk = this.value;
+			window.location.href = 'Projects?bezirk=' + this.value;
+		});
+		$("#sortEnum").val("@ViewBag.Sort").change();
+		$("#filterSelector").val("@ViewBag.Filter").change();
+		$("#sortEnum").bind("change", function (e) {
+			window.location.href = "Projects?sortierung=" + this.value + '&bezirk=' + $('#districtSelector').val();
+		});
+		$("#filterSelector").bind("change", function (e) {
+			window.location.href = "Projects?filter=" + this.value + '&bezirk=' + $('#districtSelector').val();
+		});
+        onLoad();
+	}
+	function checkbox_newProjects_clicked() {
+		event.stopImmediatePropagation();
+		console.log("checkbox_newProjects_clicked");
+		if (document.getElementById('newProjects').checked) {
+			window.location.href = "Projects?newProjects=true" + '&bezirk=' + $('#districtSelector').val();
+		} else {
+			window.location.href = "Projects?newProjects=false" + '&bezirk=' + $('#districtSelector').val();
+		}
+	}
+	function button_newProjects_clicked() {
+		console.log("button_newProjects_clicked");
+		if (document.getElementById('newProjects').checked) {
+			window.location.href = "Projects?newProjects=false" + '&bezirk=' + $('#districtSelector').val();
+		} else {
+			window.location.href = "Projects?newProjects=true" + '&bezirk=' + $('#districtSelector').val();
+		}
+	}
+	function setNewStatus() {
+		window.location.reload();
+	}
+	async function raiseStatus(caller) {
+		caller.disabled = true;
+		var statusNodes = document.getElementsByName("setStatus");
+
+		//for (var i = 0; i < statusNodes.length; i++) {
+		//}
+		console.log(caller.dataset.id);
+		const response = await fetch("api/" + caller.dataset.id + "/1", {
+			method: "PUT",
+		});
+		if (response.ok) {
+			console.log("OK");
+			console.log(response);
+
+		}
+		else {
+			console.log("Error");
+			console.log(response);
+			caller.disabled = false;
+			caller.checked = false;
+		}
+	}
+</script>
+<div class="container">
+	@*<h2>Datenbank <a asp-action="ExportProjects" asp-controller="Projects" class="btn btn-link">als JSON herunterladen</a></h2>*@
+	<div class="my-2 h4">
+		<span>Bezirk: </span>
+		<select id="districtSelector">
+			<option value="1" disabled>Mitte</option>
+			<option value="2">Friedrichshain-Kreuzberg</option>
+			<option value="3">Pankow</option>
+			<option value="4" disabled>Charlottenburg-Wilmersdorf</option>
+			<option value="5" disabled>Spandau</option>
+			<option value="6">Steglitz-Zehlendorf</option>
+			<option value="7">Tempelhof-Schöneberg</option>
+			<option value="8" disabled>Neukölln</option>
+			<option value="9" disabled>Treptow-Köpenick</option>
+			<option value="10" disabled>Marzahn-Hellersdorf</option>
+			<option value="11">Lichtenberg</option>
+			<option value="12" disabled>Reinickendorf</option>
+		</select>
+	</div>
+
+	<div class="mb-2">
+		<span style="vertical-align:middle">@Model.Count() Einträge</span>
+		<div class="btn-group" role="group">
+			<span class="btn btn-outline-primary" onclick="button_newProjects_clicked()">
+				<input id="newProjects" type="checkbox" onclick="checkbox_newProjects_clicked()" style="vertical-align:middle" />
+				<span>nur neue Vorschläge anzeigen</span>
+			</span>
+			<button onclick="setNewStatus();" class="btn btn-sm btn-primary"><i class="fas fa-redo"></i></button>
+		</div>
+	</div>
+	<div>
+		<span>Sortierung: </span>
+		<select id="sortEnum" asp-items="Html.GetEnumSelectList<Sortierung>()"></select>
+		<span>| Maßnahme filtern nach: </span>
+		<select id="filterSelector">
+			<option value="0">Kein</option>
+			<option value="1">Bäume pflanzen</option>
+			<option value="2">Baumscheibenvergrößerung</option>
+			<option value="3">Versickerungsbeet</option>
+			<option value="4">Bauliche Entsiegelung</option>
+			<option value="5">Grünflächen schaffen</option>
+		</select>
+	</div>
+	<p></p>
+</div>
+<table class="table table-sm">
+	<thead>
+		<tr>
+			<th>
+				@Html.DisplayNameFor(model => model.Pro)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Datum)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Strasse)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Plz)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Bezeichnung)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Massnahme)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Details)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Beitragender)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Status)
+			</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var item in Model)
+		{
+			<tr>
+				<td align="right">
+					@Html.DisplayFor(modelItem => item.Pro)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.Datum)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.Strasse)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.Plz)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.Bezeichnung)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.Massnahme)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.Details)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.Beitragender)
+				</td>
+				<td>
+					@if (ViewBag.NewProjects)
+					{
+						<text><input name="setStatus" type="checkbox" data-id="@item.Id" onclick="raiseStatus(this);" /></text>
+					}
+					else
+					{
+						@Html.DisplayFor(modelItem => item.Status);
+					}
+				</td>
+				<td style="width:12em; font-size:0.8rem">
+					<a asp-action="Details" asp-route-id="@item.Id"><i class="fas fa-eye"></i></a>&nbsp;|&nbsp;
+					<a asp-action="Edit" asp-route-id="@item.Id"><i class="fas fa-edit"></i></a>&nbsp;|&nbsp;
+					<a asp-action="Delete" asp-route-id="@item.Id"><i class="fas fa-trash"></i></a>
+				</td>
+			</tr>
+		}
+	</tbody>
+</table>

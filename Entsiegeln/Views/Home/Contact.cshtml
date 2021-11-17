@@ -1,0 +1,46 @@
+﻿@using Entsiegeln.Models
+@model ContactViewModel
+@{
+	ViewData["Title"] = "Kontakt";
+}
+
+<script>
+	$(document).ready(function () {
+
+	});
+
+</script>
+
+<div class="container">
+	<h1>Kontaktformular</h1>
+	<form asp-controller="Home" asp-action="PostMessage">
+		<div class="form-group">
+			<label asp-for="Name">Name</label>
+			<input class="form-control" type="text" asp-for="Name" placeholder="Name" value="@Model.Name">
+		</div>
+		<div class="form-group">
+			<label asp-for="eMail">e-Mail</label>
+			<input type="email" class="form-control" asp-for="eMail" value="@Model.eMail" placeholder="name@example.com">
+		</div>
+		<div class="form-group">
+			<label asp-for="Reason">Anliegen</label>
+			<select class="form-control" asp-for="Reason">
+				<option>Technische Fragen zur Webseite</option>
+				<option>Fehler an der Webseite melden</option>
+				<option>Verbesserung für die Webseite vorschlagen</option>
+			</select>
+		</div>
+		<div class="form-group">
+			<label asp-for="Message">Nachricht</label>
+			<textarea class="form-control" asp-for="Message" rows="3"></textarea>
+		</div>
+		<button class="btn btn-primary" type="submit">Nachricht senden</button>
+	</form>
+	<br />
+	<hr />
+	<br />
+	<p>
+		Für alle anderen Anliegen kontaktiere bitte <a href="mailto://info@@naturfreunde.de">info@@naturfreunde.de</a>
+	</p>
+	<a href="http://www.naturfreunde-berlin.de">Naturfreunde Berlin</a>
+</div>
