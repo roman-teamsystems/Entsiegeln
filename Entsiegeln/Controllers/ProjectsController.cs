@@ -57,7 +57,7 @@ namespace Entsiegeln.Controllers
     }
     public enum Filter
     {
-        Kein, Bpf, Bsv, Vbeet, Bau, Gruen
+        Kein, Bpf, Bsv, Vbeet, Bau, Gruen, Fassade
     }
 
     [Authorize(Roles = "Manager,Admin")]

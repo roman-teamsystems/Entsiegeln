@@ -93,6 +93,10 @@ namespace Entsiegeln.Models
                 {
                     return "Baumscheibenvergrößerung";
                 }
+                else if (Div)
+                {
+                    return "Fassadenbegrünung";
+                }
                 return "sonstiges";
             }
             set { }

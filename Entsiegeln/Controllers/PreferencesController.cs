@@ -57,7 +57,7 @@ namespace Berlin2bgreen.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Icon1,Icon2,Icon3,Icon4,Icon5")] Preferences preferences)
+        public async Task<IActionResult> Create([Bind("Id,Icon1,Icon2,Icon3,Icon4,Icon5,Icon6")] Preferences preferences)
         {
             if (ModelState.IsValid)
             {
@@ -89,7 +89,7 @@ namespace Berlin2bgreen.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Icon1,Icon2,Icon3,Icon4,Icon5")] Preferences preferences)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Icon1,Icon2,Icon3,Icon4,Icon5,Icon6")] Preferences preferences)
         {
             if (id != preferences.Id)
             {
@@ -143,8 +143,9 @@ namespace Berlin2bgreen.Controllers
                     case 3: { preferences.Icon3 = reader.ReadToEnd(); break; }
                     case 4: { preferences.Icon4 = reader.ReadToEnd(); break; }
                     case 5: { preferences.Icon5 = reader.ReadToEnd(); break; }
+                    case 6: { preferences.Icon6 = reader.ReadToEnd(); break; }
                 }
-                
+
             }
             stream.Dispose();
             if (ModelState.IsValid)

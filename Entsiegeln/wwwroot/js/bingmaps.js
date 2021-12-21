@@ -116,7 +116,7 @@ var infobox;
 var tooltip;
 var drawingShape;
 var searchManager;
-var projectLayers = new Array(5);
+var projectLayers = new Array(6);
 var borderLayers = new Array(1);
 var favoriteLayer;
 var favoriteMap;
@@ -128,6 +128,7 @@ var massnahmen;
     massnahmen[massnahmen["vbeet"] = 2] = "vbeet";
     massnahmen[massnahmen["bau"] = 3] = "bau";
     massnahmen[massnahmen["gruen"] = 4] = "gruen";
+    massnahmen[massnahmen["fassade"] = 5] = "fassade";
 })(massnahmen || (massnahmen = {}));
 var timeOut = 0;
 $(document).ready(function () {
@@ -324,6 +325,7 @@ function LoadSVGs() {
             $("#svgVbeet").html(data.icon3);
             $("#svgBau").html(data.icon4);
             $("#svgGruen").html(data.icon5);
+            $("#svgFassade").html(data.icon6);
             $("#toggle-bpf").html(data.icon1);
             $("#toggle-bpf").bind("click", e => toggleMassnahme(e, 0));
             $("#toggle-bsv").html(data.icon2);
@@ -877,6 +879,9 @@ function CloseDialog(e) {
         else if ($("#Massnahme").val() == 5) {
             project.vzuG = true;
         }
+        else if ($("#Massnahme").val() == 6) {
+            project.div = true;
+        }
         drawingShape.metadata = project;
         SaveNewProject(drawingShape);
     }
@@ -1290,6 +1295,9 @@ function getMassnahme(p) {
     else if (p.bsv) {
         return "Baumscheiben-Vergrößerung";
     }
+    else if (p.div) {
+        return "Fassaden-Begrünung";
+    }
     return "sonstiges";
 }
 function getMassnahmenId(p) {
@@ -1307,6 +1315,9 @@ function getMassnahmenId(p) {
     }
     else if (p.bsv) {
         return 1;
+    }
+    else if (p.div) {
+        return 5;
     }
     return -1;
 }
@@ -1328,6 +1339,9 @@ function getSvgId(p) {
     }
     else if (p.bsv) {
         return "#svgBSV";
+    }
+    else if (p.div) {
+        return "#svgFassade";
     }
     return "";
 }

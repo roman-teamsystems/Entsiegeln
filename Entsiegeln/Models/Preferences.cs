@@ -20,6 +20,7 @@ namespace Entsiegeln.Models
         public string Icon4 { get; set; }
         [Display(Name = "Grünflächen schaffen")]
         public string Icon5 { get; set; }
-
+        [Display(Name = "Fassadenbegrünung")]
+        public string Icon6 { get; set; }
     }
 }

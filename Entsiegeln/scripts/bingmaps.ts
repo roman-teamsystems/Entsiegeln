@@ -53,6 +53,7 @@ class Preferences {
 	icon3: string;
 	icon4: string;
 	icon5: string;
+	icon6: string;
 }
 
 var myStyle = {
@@ -143,7 +144,7 @@ var infobox: Microsoft.Maps.Infobox;
 var tooltip: Microsoft.Maps.Infobox;
 var drawingShape: Microsoft.Maps.IPrimitive;
 var searchManager: Microsoft.Maps.Search.SearchManager;
-var projectLayers = new Array<Microsoft.Maps.Layer>(5);
+var projectLayers = new Array<Microsoft.Maps.Layer>(6);
 var borderLayers = new Array<Microsoft.Maps.Layer>(1);
 var favoriteLayer: Microsoft.Maps.Layer;
 var favoriteMap: Map<number, number>;
@@ -153,7 +154,8 @@ enum massnahmen {
 	bsv,
 	vbeet,
 	bau,
-	gruen
+	gruen,
+	fassade
 }
 var timeOut = 0;
 $(document).ready(function () {
@@ -361,6 +363,7 @@ function LoadSVGs() {
 			$("#svgVbeet").html(data.icon3);
 			$("#svgBau").html(data.icon4);
 			$("#svgGruen").html(data.icon5);
+			$("#svgFassade").html(data.icon6);
 
 			$("#toggle-bpf").html(data.icon1);
 			$("#toggle-bpf").bind("click", e => toggleMassnahme(e, 0));
@@ -940,6 +943,9 @@ function CloseDialog(e: MouseEvent) {
 		else if ($("#Massnahme").val() == 5) {
 			project.vzuG = true;
 		}
+		else if ($("#Massnahme").val() == 6) {
+			project.div = true;
+		}
 		drawingShape.metadata = project;
 		SaveNewProject(drawingShape);
 	}
@@ -1360,6 +1366,9 @@ function getMassnahme(p: Project): string {
 	else if (p.bsv) {
 		return "Baumscheiben-Vergrößerung";
 	}
+	else if (p.div) {
+		return "Fassaden-Begrünung";
+	}
 	return "sonstiges";
 }
 
@@ -1378,6 +1387,9 @@ function getMassnahmenId(p: Project): number {
 	}
 	else if (p.bsv) {
 		return 1;
+	}
+	else if (p.div) {
+		return 5;
 	}
 	return -1;
 }
@@ -1400,6 +1412,9 @@ function getSvgId(p: Project): string {
 	}
 	else if (p.bsv) {
 		return "#svgBSV";
+	}
+	else if (p.div) {
+		return "#svgFassade";
 	}
 	return "";
 }

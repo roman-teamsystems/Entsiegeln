@@ -150,6 +150,30 @@
 				</td>
 			</tr>
 			<tr>
+				<th>
+					@Html.DisplayNameFor(model => model.Icon6)
+				</th>
+				<td>
+					<div class="svgImage">
+						@Html.Raw(item.Icon6)
+					</div>
+				</td>
+				<td>
+					<form asp-controller="Preferences" asp-action="Upload" asp-route-id="@item.Id" asp-route-fileId="6" enctype="multipart/form-data" method="post">
+						<div class="input-group mb-3">
+							<div class="input-group-prepend">
+								<button class="btn btn-primary" type="submit">Upload</button>
+							</div>
+							<div class="custom-file">
+								<input type="file" accept="image/svg+xml" class="custom-file-input" onchange="onChange(event)" name="formFile">
+								<label class="custom-file-label">Choose file</label>
+							</div>
+						</div>
+					</form>
+
+				</td>
+			</tr>
+			<tr>
 				<td>
 					<a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
 					<a asp-action="Details" asp-route-id="@item.Id">Details</a> |
