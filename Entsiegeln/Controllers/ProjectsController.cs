@@ -55,6 +55,10 @@ namespace Entsiegeln.Controllers
     {
         Eingereicht, Angenommen
     }
+    public enum Viable
+    {
+        Unbestimmt, Nicht_realisierbar, Eventuell_realisierbar, Realisierbar
+    }
     public enum Filter
     {
         Kein, Bpf, Bsv, Vbeet, Bau, Gruen, Fassade
@@ -334,7 +338,7 @@ namespace Entsiegeln.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Bezeichnung,Datum,Beitragender,Strasse,Plz,Details,BSV,Kub,Bpf,PzuB,PentsV,VzuG,Div,Vbeet,PP,UG,AzuX,GwPI,RuF,Status,Bezirk")] Project project)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Bezeichnung,Datum,Beitragender,Strasse,Plz,Details,BSV,Kub,Bpf,PzuB,PentsV,VzuG,Div,Vbeet,PP,UG,AzuX,GwPI,RuF,Status,Bezirk,Viable")] Project project)
         {
             if (id != project.Id)
             {

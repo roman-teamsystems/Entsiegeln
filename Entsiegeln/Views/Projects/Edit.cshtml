@@ -4,6 +4,46 @@
 	ViewData["Title"] = "Edit";
 }
 <style>
+/*	.form-check-label{
+		margin-bottom: 2px;
+	}
+
+	#graycircle {
+		width: 10px;
+		height: 10px;
+		-webkit-border-radius: 10px;
+		-moz-border-radius: 10px;
+		border-radius: 10px;
+		background: gray;
+	}
+
+	#redcircle {
+		width: 10px;
+		height: 10px;
+		-webkit-border-radius: 10px;
+		-moz-border-radius: 10px;
+		border-radius: 10px;
+		background: red;
+	}
+
+	#yellowcircle {
+		width: 10px;
+		height: 10px;
+		-webkit-border-radius: 10px;
+		-moz-border-radius: 10px;
+		border-radius: 10px;
+		background: yellow;
+	}
+
+	#greencircle {
+		width: 10px;
+		height: 10px;
+		-webkit-border-radius: 10px;
+		-moz-border-radius: 10px;
+		border-radius: 10px;
+		background: green;
+	}*/
+
 	map {
 		width: 400px;
 		height: 300px;
@@ -78,6 +118,71 @@
 					<label asp-for="Status" class="control-label"></label>
 					<input type="number" min="0" max="1" asp-for="Status" class="form-control" />
 					<span asp-validation-for="Status" class="text-danger"></span>
+				</div>
+				<div class="form-group">
+					<label class="control-label">Realisierbarkeit</label>
+					
+					<div class="form-check">
+						@if (Model.Viable == 0)
+						{
+							<input class="form-check-input" type="radio" asp-for="Viable" checked value="0">
+						}
+						else
+						{
+							<input class="form-check-input" type="radio" asp-for="Viable" value="0">
+						}
+					<label class="form-check-label" asp-for="Viable">
+						Unbestimmt
+					</label>
+					</div>
+					
+					<div class="form-check">
+
+						@if (Model.Viable == 1)
+						{
+							<input class="form-check-input" type="radio" asp-for="Viable" checked value="1">
+						}
+						else
+						{
+							<input class="form-check-input" type="radio" asp-for="Viable" value="1">
+
+						}
+					<label class="form-check-label" asp-for="Viable">
+						Nicht realisierbar
+					</label>
+					</div>
+					
+					<div class="form-check">
+
+						@if (Model.Viable == 2)
+						{
+							<input class="form-check-input" type="radio" asp-for="Viable" checked value="2">
+						}
+						else
+						{
+							<input class="form-check-input" type="radio" asp-for="Viable" value="2">
+
+						}
+					<label class="form-check-label" asp-for="Viable">
+						Eventuell realisierbar
+					</label>
+					</div>
+					
+					<div class="form-check">
+
+						@if (Model.Viable == 3)
+						{
+							<input class="form-check-input" type="radio" asp-for="Viable" checked value="3">
+						}
+						else
+						{
+							<input class="form-check-input" type="radio" asp-for="Viable" value="3">
+
+						}
+					<label class="form-check-label" asp-for="Viable">
+						Realisierbar
+					</label>
+					</div>
 				</div>
 				<div>
 					<table>
@@ -277,9 +382,14 @@
 	</div>
 
 	<div>
-		<a asp-action="Index">Zurück zur Liste</a>
+		<a id="backToList" asp-action="Index">Zurück zur Liste</a>
 	</div>
 </div>
+<script>
+	if (sessionStorage.bezirk) {
+		$("#backToList").attr("href", $("#backToList").attr("href") + "?bezirk=" + sessionStorage.bezirk);
+	}
+</script>
 @section Scripts {
 	@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

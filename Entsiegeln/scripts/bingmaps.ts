@@ -28,6 +28,7 @@ class Project {
 	ruF: boolean = false;
 	prio: number = 0;
 	status: number = 0;
+	viable: number = 0;
 	userId: string = null;
 	ratings: Rating[] = null;
 }

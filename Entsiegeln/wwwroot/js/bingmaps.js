@@ -22,6 +22,7 @@ class Project {
         this.ruF = false;
         this.prio = 0;
         this.status = 0;
+        this.viable = 0;
         this.userId = null;
         this.ratings = null;
     }

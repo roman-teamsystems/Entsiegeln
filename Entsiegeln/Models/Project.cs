@@ -116,6 +116,8 @@ namespace Entsiegeln.Models
         public bool RuF { get; set; } = false;
         public byte Prio { get; set; } = 0;
         public byte Status { get; set; } = 0;
+        [Display(Name = "real.")]
+        public byte Viable { get; set; } = 0;
         public string UserId { get; set; }
         public EntsiegelnUser User { get; set; }
         [NotMapped]

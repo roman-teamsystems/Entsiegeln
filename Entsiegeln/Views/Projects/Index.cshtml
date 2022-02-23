@@ -5,6 +5,38 @@
 	ViewData["Title"] = "Index";
 }
 <style>
+	#graycircle {
+		width: 10px;
+		height: 10px;
+		-webkit-border-radius: 5px;
+		-moz-border-radius: 5px;
+		border-radius: 5px;
+		background: gray;
+	}
+	#redcircle {
+		width: 10px;
+		height: 10px;
+		-webkit-border-radius: 5px;
+		-moz-border-radius: 5px;
+		border-radius: 5px;
+		background: red;
+	}
+	#yellowcircle {
+		width: 10px;
+		height: 10px;
+		-webkit-border-radius: 5px;
+		-moz-border-radius: 5px;
+		border-radius: 5px;
+		background: yellow;
+	}
+	#greencircle {
+		width: 10px;
+		height: 10px;
+		-webkit-border-radius: 5px;
+		-moz-border-radius: 5px;
+		border-radius: 5px;
+		background: green;
+	}
 	table {
 		font-size: 0.625rem;
 	}
@@ -42,6 +74,9 @@
 	}
 
 	td:nth-child(9) {
+		width: 4em;
+	}
+	td:nth-child(10) {
 		width: 4em;
 	}
 </style>
@@ -186,53 +221,74 @@
 			<th>
 				@Html.DisplayNameFor(model => model.Status)
 			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Viable)
+			</th>
 			<th></th>
 		</tr>
 	</thead>
 	<tbody>
 		@foreach (var item in Model)
 		{
-			<tr>
-				<td align="right">
-					@Html.DisplayFor(modelItem => item.Pro)
-				</td>
-				<td>
-					@Html.DisplayFor(modelItem => item.Datum)
-				</td>
-				<td>
-					@Html.DisplayFor(modelItem => item.Strasse)
-				</td>
-				<td>
-					@Html.DisplayFor(modelItem => item.Plz)
-				</td>
-				<td>
-					@Html.DisplayFor(modelItem => item.Bezeichnung)
-				</td>
-				<td>
-					@Html.DisplayFor(modelItem => item.Massnahme)
-				</td>
-				<td>
-					@Html.DisplayFor(modelItem => item.Details)
-				</td>
-				<td>
-					@Html.DisplayFor(modelItem => item.Beitragender)
-				</td>
-				<td>
-					@if (ViewBag.NewProjects)
-					{
-						<text><input name="setStatus" type="checkbox" data-id="@item.Id" onclick="raiseStatus(this);" /></text>
-					}
-					else
-					{
-						@Html.DisplayFor(modelItem => item.Status);
-					}
-				</td>
-				<td style="width:12em; font-size:0.8rem">
-					<a asp-action="Details" asp-route-id="@item.Id"><i class="fas fa-eye"></i></a>&nbsp;|&nbsp;
-					<a asp-action="Edit" asp-route-id="@item.Id"><i class="fas fa-edit"></i></a>&nbsp;|&nbsp;
-					<a asp-action="Delete" asp-route-id="@item.Id"><i class="fas fa-trash"></i></a>
-				</td>
-			</tr>
+		<tr>
+			<td align="right">
+				@Html.DisplayFor(modelItem => item.Pro)
+			</td>
+			<td>
+				@Html.DisplayFor(modelItem => item.Datum)
+			</td>
+			<td>
+				@Html.DisplayFor(modelItem => item.Strasse)
+			</td>
+			<td>
+				@Html.DisplayFor(modelItem => item.Plz)
+			</td>
+			<td>
+				@Html.DisplayFor(modelItem => item.Bezeichnung)
+			</td>
+			<td>
+				@Html.DisplayFor(modelItem => item.Massnahme)
+			</td>
+			<td>
+				@Html.DisplayFor(modelItem => item.Details)
+			</td>
+			<td>
+				@Html.DisplayFor(modelItem => item.Beitragender)
+			</td>
+			<td>
+				@if (ViewBag.NewProjects)
+				{
+					<text><input name="setStatus" type="checkbox" data-id="@item.Id" onclick="raiseStatus(this);" /></text>
+				}
+				else
+				{
+					@Html.DisplayFor(modelItem => item.Status);
+				}
+			</td>
+			<td>
+				@if (item.Viable == 0)
+				{
+					<div id="graycircle"></div>
+				}
+				@if (item.Viable == 1)
+				{
+					<div id="redcircle"></div>
+				}
+				@if (item.Viable == 2)
+				{
+					<div id="yellowcircle"></div>
+				}
+				@if (item.Viable == 3)
+				{
+					<div id="greencircle"></div>
+				}
+			</td>
+			<td style="width:12em; font-size:0.8rem">
+				<a asp-action="Details" asp-route-id="@item.Id"><i class="fas fa-eye"></i></a>&nbsp;|&nbsp;
+				<a asp-action="Edit" asp-route-id="@item.Id"><i class="fas fa-edit"></i></a>
+				@*<a asp-action="Delete" asp-route-id="@item.Id"><i class="fas fa-trash"></i></a>*@
+			</td>
+		</tr>
 		}
 	</tbody>
 </table>
