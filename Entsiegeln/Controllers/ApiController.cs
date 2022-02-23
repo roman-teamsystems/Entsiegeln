@@ -52,7 +52,7 @@ namespace Entsiegeln.Controllers
                         return await _context.Projekte.Where(p => (int)p.Bezirk == bezirk).Include(p => p.Bilder).ToListAsync();
                     }
                 }
-                return await _context.Projekte.Where(p => (int)p.Bezirk == bezirk && (p.UserId == userId) || (p.Status > 0)).Include(p => p.Bilder).ToListAsync();
+                return await _context.Projekte.Where(p => (int)p.Bezirk == bezirk && ((p.UserId == userId) || (p.Status > 0))).Include(p => p.Bilder).ToListAsync();
             }
             return await _context.Projekte.Where(p => (int)p.Bezirk == bezirk && p.Status > 0).Include(p => p.Bilder).ToListAsync();
         }
